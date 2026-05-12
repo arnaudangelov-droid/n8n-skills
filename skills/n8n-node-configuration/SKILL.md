@@ -96,6 +96,43 @@ Configuration best practices:
 
 ---
 
+## ⚠️ airtableTool — Configuration spécifique
+
+### Opérations disponibles
+| Opération | Usage |
+|---|---|
+| `create` | Créer un nouvel enregistrement |
+| `update` | Modifier un enregistrement existant (nécessite matching) |
+| `get` | Lire un enregistrement par ID |
+| `list` | Lister les enregistrements (avec filtres optionnels) |
+| `search` | Rechercher par valeur de champ |
+
+⚠️ **Avant de configurer via MCP** : toujours lire le node actuel avec `n8n_get_workflow` pour vérifier l'opération existante.
+
+### Update — matching de record
+```
+"Columns to match on" → id       ✅ (champ interne n8n = record ID Airtable direct)
+"Columns to match on" → RECORD_ID ❌ (formule Airtable, provoque "Record not found")
+```
+
+Dans "Values to Update", champ `id` :
+```
+{{ $fromAI('stock_record_id', 'Record ID recXXXXX', 'string') }}
+```
+
+### $fromAI — règles
+1. **Linked records** (type array) : utiliser type `json`, agent fournit `["recXXX"]`
+2. **Cohérence des clés** : même clé sur le même agent = description ET type identiques dans TOUS les tools
+3. **Syntaxe** : `{{ $fromAI('key', 'desc', 'type') }}` — sans `=` devant `{{`
+
+### Schema — champs à désactiver (removed: true)
+Tout champ reverse-lookup ou formule doit être désactivé dans le schema pour éviter les erreurs de validation :
+- `RECORD_ID` (formule) → `removed: true`
+- Champs calculés automatiquement → `removed: true`
+- Reverse lookups (ex: MOUVEMENTS_STOCK dans LIVRAISONS) → `removed: true`
+
+---
+
 ## Configuration Workflow
 
 ### Standard Process

@@ -78,6 +78,29 @@ Access environment variables:
 
 ---
 
+## 🚨 CRITICAL: airtableTool Column Values — `{{ }}` vs `={{ }}`
+
+Dans les champs **"Values to Send/Update"** d'un airtableTool, le comportement diffère des paramètres n8n standard :
+
+| Syntaxe | Comportement | Résultat |
+|---|---|---|
+| `={{ expr }}` | Template string : `=` littéral + `{{ expr }}` substitué | `=valeur` ❌ |
+| `{{ expr }}` | Valeur native passée directement | `valeur` ✅ |
+
+```
+❌ ={{ $fromAI('bar_recID', 'desc', 'json') }}  → "=recBpZ2vGMyJntONB" (string cassée)
+✅ {{ $fromAI('bar_recID', 'desc', 'json') }}   → ["recBpZ2vGMyJntONB"] (array correct)
+
+❌ ={{ $fromAI('quantite', 'desc', 'number') }} → "=1" (string, pas number)
+✅ {{ $fromAI('quantite', 'desc', 'number') }}  → 1 (number correct)
+```
+
+**Règle** : dans les colonnes airtableTool, **toujours `{{ }}` sans `=`**.
+
+Cette règle s'applique UNIQUEMENT aux champs de valeurs airtableTool. Les paramètres n8n standard utilisent `={{ }}` normalement.
+
+---
+
 ## 🚨 CRITICAL: Webhook Data Structure
 
 **Most Common Mistake**: Webhook data is **NOT** at the root!
